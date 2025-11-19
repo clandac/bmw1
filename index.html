@@ -1,3 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genesys Cloud – Call Me Now</title>
+  <style>
+    body { font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; background:#f6f8fa;}
+    form { background:white; padding:2rem; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); width:300px;}
+    input, button { width:100%; margin-bottom:1rem; padding:0.75rem; border:1px solid #ccc; border-radius:4px;}
+    button { background:#007bff; color:white; border:none; cursor:pointer;}
+    button:hover { background:#0056b3;}
+  </style>
+</head>
+<body>
+  <form id="callbackForm">
+    <h3>Call Me Now</h3>
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="tel" id="phone" placeholder="+1 555 123 4567" required>
+    <button type="submit">Call Me Now</button>
+    <p id="result"></p>
+  </form>
+
+  <script>
+    const REGION_BASE_URL = "https://api.mypurecloud.com"; // change to your region
+    const QUEUE_ID = "YOUR_QUEUE_ID";                      // replace with queueId
+    const ACCESS_TOKEN = "YOUR_ACCESS_TOKEN";              // server-side token preferred
+
+    document.getElementById("callbackForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const result = document.getElementById("result");
+      result.textContent = "Submitting request...";
+
+      const payload = {
+        queueId: QUEUE_ID,
+        callbackUserName: name,
+        phoneNumber: phone,
+        data: { source: "CallMeNowForm" }
+      };
+
+      try {
+        const response = await fetch(`${REGION_BASE_URL}/api/v2/conversations/callbacks`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+        result.style.color = "green";
+        result.textContent = "✅ Callback request created! We’ll call you shortly.";
+      } catch (err) {
+        console.error(err);
+        result.style.color = "red";
+        result.textContent = "❌ Error creating callback. Check console/logs.";
+      }
+    });
+  </script>
+</body>
+</html>
+
 <script type="text/javascript" charset="utf-8">
   (function (g, e, n, es, ys) {
     g['_genesysJs'] = e;
